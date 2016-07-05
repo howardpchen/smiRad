@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import apikey
+
 try:
     url = sys.argv[1]
     framerate = sys.argv[2]
@@ -203,7 +205,7 @@ print("uploading...")
 alldicom = sorted([f for f in os.listdir('dcm/') if isfile(join('dcm/', f))])
 
 for i in alldicom:
-    cmd = 'curl -H "apikey:0f493fc6-c3f9-4099-9b9c-5abc6f8f8bfd" -H "Content-Type: multipart/related;type=application/dicom" -F "file=@dcm/'+ i + ';type=application/dicom" http://api.hackathon.siim.org/dicom-web/studies/ > /dev/null 2>&1'
+    cmd = 'curl -H "apikey:' + apikey + '" -H "Content-Type: multipart/related;type=application/dicom" -F "file=@dcm/'+ i + ';type=application/dicom" http://api.hackathon.siim.org/dicom-web/studies/ > /dev/null 2>&1'
     os.system(cmd)
 
 print("done")
