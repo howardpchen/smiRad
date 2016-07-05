@@ -1,0 +1,126 @@
+# Coded version of DICOM file 'ex.dcm'
+# Produced by pydicom codify utility script
+import os, sys, dicom
+from PIL import Image
+from dicom.dataset import Dataset
+from dicom.sequence import Sequence
+
+imgdir = "imgs/foo-001.jpg"
+filename = "output.dcm"
+
+# File meta info data elements
+file_meta = Dataset()
+file_meta.FileMetaInformationGroupLength = 208
+file_meta.FileMetaInformationVersion = b'\x00\x01'
+file_meta.MediaStorageSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
+file_meta.MediaStorageSOPInstanceUID = '2.16.840.1.113669.632.21.2355032591.2355032591.31576525892578364'
+file_meta.TransferSyntaxUID = '1.2.840.10008.1.2.4.50'
+file_meta.ImplementationClassUID = '2.16.840.1.113669.632.21.1'
+file_meta.ImplementationVersionName = 'AQNET44B-470'
+file_meta.SourceApplicationEntityTitle = ''
+
+# Main data elements
+ds = Dataset()
+ds.SpecificCharacterSet = 'ISO_IR 100'
+ds.ImageType = ['DERIVED', 'PRIMARY', 'MONOCHROME', 'VOLUME_PLANE', 'MPR']
+ds.SOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
+ds.SOPInstanceUID = '2.16.840.1.113669.632.21.2355032591.2355032591.31576525892578364'
+ds.StudyDate = '20150625'
+ds.AcquisitionDate = '20150625'
+ds.ContentDate = '20150625'
+ds.StudyTime = '084422'
+ds.SeriesTime = ''
+ds.AcquisitionTime = '084631.200'
+ds.ContentTime = '084632.025'
+ds.AccessionNumber = ''
+ds.Modality = 'CT'
+ds.Manufacturer = 'TOSHIBA'
+ds.ReferringPhysicianName = ''
+ds.StudyDescription = 'CT CHEST WO IV CONTRAST'
+
+# Procedure Code Sequence
+procedure_code_sequence = Sequence()
+ds.ProcedureCodeSequence = procedure_code_sequence
+
+# Procedure Code Sequence: Procedure Code 1
+procedure_code1 = Dataset()
+procedure_code1.CodeValue = 'CTCHUZ'
+procedure_code1.CodingSchemeDesignator = 'GEIIS'
+procedure_code1.CodingSchemeVersion = '0'
+procedure_code1.CodeMeaning = 'CT CHEST WO IV CONTRAST - CTCHUZ'
+procedure_code_sequence.append(procedure_code1)
+
+ds.SeriesDescription = ';;;Coronal.44/Coronal//FC02/ORG/MULTIVIEW'
+ds.ManufacturerModelName = 'Asteion'
+ds.PatientName = 'AIRP Anonymous Patient'
+ds.PatientID = 'AIRP Anonymous Patient'
+ds.IssuerOfPatientID = '001LB9:20070128:000718363:000570'
+ds.PatientBirthDate = ''
+ds.PatientSex = 'F'
+ds.BodyPartExamined = 'CHEST WO'
+ds.ScanOptions = 'HELICAL_CT'
+ds.SliceThickness = '2.92'
+ds.KVP = '120'
+ds.DataCollectionDiameter = '500.00'
+ds.SoftwareVersions = 'V1.60ER002'
+ds.ReconstructionDiameter = '500.00'
+ds.GantryDetectorTilt = '+0.0'
+ds.TableHeight = '+39.00'
+ds.RotationDirection = 'CW'
+ds.ExposureTime = '750'
+ds.XRayTubeCurrent = '110'
+ds.Exposure = '82'
+ds.ConvolutionKernel = 'FC02'
+ds.PatientPosition = 'FFS'
+ds.StudyInstanceUID = '2.16.840.1.113669.632.21.2355032591.2355032591.39901289372026838'
+ds.SeriesInstanceUID = '2.16.840.1.113669.632.21.2355032591.2355032591.10134957822418100'
+ds.StudyID = ''
+ds.SeriesNumber = '3'
+ds.AcquisitionNumber = '3'
+ds.InstanceNumber = '44'
+ds.PatientOrientation = ['L', 'F']
+ds.ImagePositionPatient = ['-257.812500', '-108.793800', '1384.672000']
+ds.ImageOrientationPatient = ['1.000000', '0.000000', '0.000000', '0.000000', '0.000000', '-1.000000']
+ds.FrameOfReferenceUID = '2.16.840.1.113669.632.21.2355032591.2355032591.17844830442748373'
+ds.PositionReferenceIndicator = ''
+ds.SliceLocation = '+129.00'
+ds.SamplesPerPixel = 1
+ds.PhotometricInterpretation = 'MONOCHROME2'
+
+img = Image.open(imgdir)
+ds.Rows = img.size[0]
+ds.Columns = img.size[1]
+ds.PixelSpacing = ['0.976', '0.976']
+ds.BitsAllocated = 16
+ds.BitsStored = 16
+ds.HighBit = 15
+ds.PixelRepresentation = 1
+ds.WindowCenter = '40'
+ds.WindowWidth = '380'
+ds.RescaleIntercept = '0'
+ds.RescaleSlope = '1'
+ds.RequestingService = 'HUP'
+ds.ScheduledProcedureStepStartDate = '20150625'
+ds.ScheduledProcedureStepStartTime = '084422.000'
+ds.ScheduledProcedureStepEndDate = '20150625'
+ds.ScheduledProcedureStepEndTime = '091422.000'
+ds.PerformedProcedureStepStartDate = '20150625'
+ds.PerformedProcedureStepStartTime = '084422.000'
+ds.PerformedProcedureStepID = '6636'
+ds.FillerOrderNumberImagingServiceRequest = '26296282'
+ds.add_new((0x7fe0, 0x0000), 'UL', 524296)
+
+ds.PixelData = img.tobytes()
+
+#get the numpy array
+arr = ds.pixel_array
+# Reshape it so the third dimension is RGB
+arr = arr.reshape(arr.shape[1],arr.shape[2],arr.shape[0])
+# Now transpose it back so that RGB becomes the first dimension (what DICOM viewers would expect)
+arr = arr.transpose(1,2,0)
+# Now reassign back to the image data
+ds.PixelData = arr.tostring()
+
+ds.file_meta = file_meta
+ds.is_implicit_VR = True
+ds.is_little_endian = True
